@@ -15,8 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LinkedIn Copilot",
-  description: "AI-powered LinkedIn networking assistant",
+  title: "Li Copilot — AI LinkedIn Message Generator",
+  description: "Generate personalized LinkedIn connection requests, referral asks, recruiter replies, and follow-ups in seconds. Powered by AI.",
+  keywords: ["LinkedIn", "AI", "networking", "job search", "connection request", "referral"],
+  openGraph: {
+    title: "Li Copilot — AI LinkedIn Message Generator",
+    description: "Write better LinkedIn messages in seconds with AI.",
+    url: "https://li-copilot.vercel.app",
+    siteName: "Li Copilot",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Li Copilot — AI LinkedIn Message Generator",
+    description: "Write better LinkedIn messages in seconds with AI.",
+  },
 };
 
 export default function RootLayout({
