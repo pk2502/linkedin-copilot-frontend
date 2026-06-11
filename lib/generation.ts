@@ -55,3 +55,61 @@ export const generationService = {
     return data;
   },
 };
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+
+async function streamGenerate(
+  endpoint: string,
+  payload: Record<string, string>,
+  onChunk: (chunk: string) => void,
+): Promise<void> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+  const response = await fetch(`${API_BASE}/api/generate/stream/${endpoint}/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) throw new Error("Stream request failed");
+
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+  if (!reader) throw new Error("No response body");
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const text = decoder.decode(value, { stream: true });
+    const lines = text.split("\n");
+
+    for (const line of lines) {
+      if (line.startsWith("data: ")) {
+        const data = line.slice(6).trim();
+        if (data === "[DONE]") return;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.chunk) onChunk(parsed.chunk);
+        } catch {}
+      }
+    }
+  }
+}
+
+export const streamingService = {
+  connectionRequest: (payload: GenerateConnectionRequestPayload, onChunk: (chunk: string) => void) =>
+    streamGenerate("connection-request", payload as Record<string, string>, onChunk),
+
+  referralRequest: (payload: GenerateReferralRequestPayload, onChunk: (chunk: string) => void) =>
+    streamGenerate("referral-request", payload as Record<string, string>, onChunk),
+
+  recruiterReply: (payload: GenerateRecruiterReplyPayload, onChunk: (chunk: string) => void) =>
+    streamGenerate("recruiter-reply", payload as Record<string, string>, onChunk),
+
+  followup: (payload: GenerateFollowupPayload, onChunk: (chunk: string) => void) =>
+    streamGenerate("followup", payload as Record<string, string>, onChunk),
+};

@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, Check } from "lucide-react";
 
-export function GeneratedMessageCard({ message }: { message: string }) {
+interface GeneratedMessageCardProps {
+  message: string;
+  isStreaming?: boolean;
+}
+
+export function GeneratedMessageCard({ message, isStreaming = false }: GeneratedMessageCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -19,12 +24,22 @@ export function GeneratedMessageCard({ message }: { message: string }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-base">Generated Message</CardTitle>
-        <Button variant="ghost" size="sm" onClick={handleCopy}>
+        <Button variant="ghost" size="sm" onClick={handleCopy} disabled={isStreaming}>
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </Button>
       </CardHeader>
       <CardContent>
-        <Textarea value={message} readOnly rows={5} className="resize-none" />
+        <div className="relative">
+          <Textarea
+            value={message}
+            readOnly
+            rows={5}
+            className="resize-none"
+          />
+          {isStreaming && (
+            <span className="absolute bottom-3 right-3 inline-block w-2 h-4 bg-foreground animate-pulse rounded-sm" />
+          )}
+        </div>
       </CardContent>
     </Card>
   );

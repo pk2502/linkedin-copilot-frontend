@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { generationService } from "@/lib/generation";
+import { streamingService } from "@/lib/generation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,14 +10,25 @@ import { GeneratedMessageCard } from "@/components/generated-message-card";
 
 export default function DashboardPage() {
   const [form, setForm] = useState({ name: "", company: "", role: "" });
+  const [message, setMessage] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: generationService.connectionRequest,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(form);
+    setMessage("");
+    setError(false);
+    setIsStreaming(true);
+
+    try {
+      await streamingService.connectionRequest(form, (chunk) => {
+        setMessage((prev) => prev + chunk);
+      });
+    } catch {
+      setError(true);
+    } finally {
+      setIsStreaming(false);
+    }
   };
 
   return (
@@ -50,15 +60,17 @@ export default function DashboardPage() {
               <Input id="role" placeholder="Senior Engineer" value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })} required />
             </div>
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
-              {mutation.isPending ? "Generating..." : "Generate Message"}
+            <Button type="submit" disabled={isStreaming} className="w-full">
+              {isStreaming ? "Generating..." : "Generate Message"}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      {mutation.isError && <p className="text-sm text-destructive">Failed to generate. Try again.</p>}
-      {mutation.data?.message && <GeneratedMessageCard message={mutation.data.message} />}
+      {error && <p className="text-sm text-destructive">Failed to generate. Try again.</p>}
+      {(message || isStreaming) && (
+        <GeneratedMessageCard message={message} isStreaming={isStreaming} />
+      )}
     </div>
   );
 }
