@@ -31,7 +31,6 @@ export const authService = {
 
   login: async (payload: LoginPayload): Promise<AuthResponse> => {
     const { data } = await api.post("/api/auth/login/", payload);
-    // login returns access + refresh but no user — fetch me
     const user = await authService.me(data.access);
     return { ...data, user };
   },
@@ -41,5 +40,11 @@ export const authService = {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
     return data;
+  },
+
+  googleLogin: async (code: string): Promise<AuthResponse> => {
+    const { data } = await api.post("/api/auth/social/google/", { code });
+    const user = await authService.me(data.access);
+    return { ...data, user };
   },
 };
