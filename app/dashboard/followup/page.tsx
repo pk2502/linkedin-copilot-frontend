@@ -1,31 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { generationService } from "@/lib/generation";
+import { streamingService } from "@/lib/generation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeneratedMessageCard } from "@/components/generated-message-card";
+import { ToneSelector, Tone } from "@/components/tone-selector";
 
 export default function FollowupPage() {
   const [form, setForm] = useState({
-    name: "",
-    company: "",
-    role: "",
-    context: "",
-    days_since: "",
+    name: "", company: "", role: "", context: "", days_since: "",
   });
+  const [tone, setTone] = useState<Tone>("friendly");
+  const [message, setMessage] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: generationService.followup,
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(form);
+    setMessage("");
+    setError(false);
+    setIsStreaming(true);
+    try {
+      await streamingService.followup({ ...form, tone }, (chunk) => {
+        setMessage((prev) => prev + chunk);
+      });
+    } catch {
+      setError(true);
+    } finally {
+      setIsStreaming(false);
+    }
   };
 
   return (
@@ -34,7 +41,6 @@ export default function FollowupPage() {
         <h2 className="text-xl font-semibold">Follow-Up Message</h2>
         <p className="text-sm text-muted-foreground">Re-engage a connection after a previous interaction.</p>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Details</CardTitle>
@@ -68,15 +74,15 @@ export default function FollowupPage() {
               <Input id="days_since" type="number" placeholder="7" value={form.days_since}
                 onChange={(e) => setForm({ ...form, days_since: e.target.value })} required />
             </div>
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
-              {mutation.isPending ? "Generating..." : "Generate Message"}
+            <ToneSelector value={tone} onChange={setTone} />
+            <Button type="submit" disabled={isStreaming} className="w-full">
+              {isStreaming ? "Generating..." : "Generate Message"}
             </Button>
           </form>
         </CardContent>
       </Card>
-
-      {mutation.isError && <p className="text-sm text-destructive">Failed to generate. Try again.</p>}
-      {mutation.data?.message && <GeneratedMessageCard message={mutation.data.message} />}
+      {error && <p className="text-sm text-destructive">Failed to generate. Try again.</p>}
+      {(message || isStreaming) && <GeneratedMessageCard message={message} isStreaming={isStreaming} />}
     </div>
   );
 }
