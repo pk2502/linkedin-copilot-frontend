@@ -60,7 +60,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
 
 async function streamGenerate(
   endpoint: string,
-  payload: Record<string, string>,
+  payload: object,
   onChunk: (chunk: string) => void,
 ): Promise<void> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
@@ -102,14 +102,14 @@ async function streamGenerate(
 
 export const streamingService = {
   connectionRequest: (payload: GenerateConnectionRequestPayload, onChunk: (chunk: string) => void) =>
-    streamGenerate("connection-request", payload as Record<string, string>, onChunk),
+    streamGenerate("connection-request", payload, onChunk),
 
   referralRequest: (payload: GenerateReferralRequestPayload, onChunk: (chunk: string) => void) =>
-    streamGenerate("referral-request", payload as Record<string, string>, onChunk),
+    streamGenerate("referral-request", payload, onChunk),
 
   recruiterReply: (payload: GenerateRecruiterReplyPayload, onChunk: (chunk: string) => void) =>
-    streamGenerate("recruiter-reply", payload as Record<string, string>, onChunk),
+    streamGenerate("recruiter-reply", payload, onChunk),
 
   followup: (payload: GenerateFollowupPayload, onChunk: (chunk: string) => void) =>
-    streamGenerate("followup", payload as Record<string, string>, onChunk),
+    streamGenerate("followup", payload, onChunk),
 };
