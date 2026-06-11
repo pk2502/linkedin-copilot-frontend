@@ -1,9 +1,12 @@
 import api from "@/lib/axios";
 
+export type Tone = "formal" | "friendly" | "concise";
+
 export interface GenerateConnectionRequestPayload {
   name: string;
   company: string;
   role: string;
+  tone?: Tone;
 }
 
 export interface GenerateReferralRequestPayload {
@@ -12,6 +15,7 @@ export interface GenerateReferralRequestPayload {
   role: string;
   job_title: string;
   your_background: string;
+  tone?: Tone;
 }
 
 export interface GenerateRecruiterReplyPayload {
@@ -20,6 +24,7 @@ export interface GenerateRecruiterReplyPayload {
   job_title: string;
   your_background: string;
   interest_level: string;
+  tone?: Tone;
 }
 
 export interface GenerateFollowupPayload {
@@ -28,6 +33,7 @@ export interface GenerateFollowupPayload {
   role: string;
   context: string;
   days_since: string;
+  tone?: Tone;
 }
 
 export interface GenerateResponse {

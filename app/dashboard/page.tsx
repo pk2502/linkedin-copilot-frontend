@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GeneratedMessageCard } from "@/components/generated-message-card";
+import { ToneSelector, Tone } from "@/components/tone-selector";
 
 export default function DashboardPage() {
   const [form, setForm] = useState({ name: "", company: "", role: "" });
+  const [tone, setTone] = useState<Tone>("friendly");
   const [message, setMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(false);
@@ -21,7 +23,7 @@ export default function DashboardPage() {
     setIsStreaming(true);
 
     try {
-      await streamingService.connectionRequest(form, (chunk) => {
+      await streamingService.connectionRequest({ ...form, tone }, (chunk) => {
         setMessage((prev) => prev + chunk);
       });
     } catch {
@@ -60,6 +62,7 @@ export default function DashboardPage() {
               <Input id="role" placeholder="Senior Engineer" value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })} required />
             </div>
+            <ToneSelector value={tone} onChange={setTone} />
             <Button type="submit" disabled={isStreaming} className="w-full">
               {isStreaming ? "Generating..." : "Generate Message"}
             </Button>
