@@ -113,6 +113,9 @@ export function handleSessionExpired() {
   clearTokens();
   if (!isBrowser() || redirecting) return;
   redirecting = true;
+  // Deliberate full page load: it resets in-memory client state after the
+  // session ends, and this module runs outside React (no useRouter here).
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.href = "/login";
 }
 
