@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import { isAxiosError } from "axios";
 import { AuthUser, authService } from "@/lib/auth";
 import { setTokens, clearTokens } from "@/lib/axios";
+import { ensureSessionCookie, getAccessToken } from "@/lib/tokens";
 
 interface AuthState {
   user: AuthUser | null;
@@ -27,17 +29,22 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   hydrate: async () => {
-    const access = localStorage.getItem("access_token");
+    const access = getAccessToken();
     if (!access) return;
+    // Migrates sessions created before the ac_session cookie existed.
+    ensureSessionCookie();
     set({ accessToken: access, isAuthenticated: true });
     // Restore user from API
     try {
       const user = await authService.me();
       set({ user });
-    } catch {
-      // Token invalid — clear
-      clearTokens();
-      set({ accessToken: null, isAuthenticated: false });
+    } catch (err) {
+      // A 401 here means the refresh also failed (the axios interceptor has
+      // already tried). Network errors keep the session.
+      if (isAxiosError(err) && err.response?.status === 401) {
+        clearTokens();
+        set({ accessToken: null, isAuthenticated: false });
+      }
     }
   },
 }));

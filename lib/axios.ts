@@ -1,6 +1,13 @@
-import axios from "axios";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+import axios, { type InternalAxiosRequestConfig } from "axios";
+import {
+  API_BASE,
+  SessionExpiredError,
+  clearTokens,
+  getAccessToken,
+  handleSessionExpired,
+  refreshAccessToken,
+  setTokens,
+} from "@/lib/tokens";
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -9,26 +16,17 @@ const api = axios.create({
   },
 });
 
-function setTokens(access: string, refresh?: string) {
-  localStorage.setItem("access_token", access);
-  document.cookie = `access_token=${access}; path=/; max-age=${60 * 60 * 24 * 7}`;
-  if (refresh) {
-    localStorage.setItem("refresh_token", refresh);
-  }
-}
+// Endpoints whose 401 means "bad credentials", not "expired access token".
+const AUTH_ENDPOINTS = ["/api/auth/login/", "/api/auth/register/", "/api/auth/refresh/", "/api/auth/social/"];
 
-function clearTokens() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  document.cookie = "access_token=; path=/; max-age=0";
-}
+const isAuthEndpoint = (url?: string) => !!url && AUTH_ENDPOINTS.some((path) => url.includes(path));
+
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const token = getAccessToken();
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -36,27 +34,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
-      const refresh = localStorage.getItem("refresh_token");
-      if (refresh) {
-        try {
-          const { data } = await axios.post(`${API_BASE}/api/auth/refresh/`, { refresh });
-          // ROTATE_REFRESH_TOKENS=True means we get a new refresh token too
-          setTokens(data.access, data.refresh);
-          original.headers.Authorization = `Bearer ${data.access}`;
-          return api(original);
-        } catch {
-          clearTokens();
-          window.location.href = "/login";
-        }
-      } else {
-        clearTokens();
-        window.location.href = "/login";
-      }
+    const original = error.config as RetriableConfig | undefined;
+    if (error.response?.status !== 401 || !original || original._retry || isAuthEndpoint(original.url)) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    original._retry = true;
+    try {
+      const access = await refreshAccessToken();
+      original.headers.Authorization = `Bearer ${access}`;
+      return api(original);
+    } catch (refreshError) {
+      if (refreshError instanceof SessionExpiredError) handleSessionExpired();
+      return Promise.reject(error);
+    }
   }
 );
 

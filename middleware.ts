@@ -6,7 +6,10 @@ const PROTECTED_PREFIX = "/dashboard";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("access_token")?.value;
+  // ac_session is a presence flag set by the client; access_token is the
+  // legacy cookie from before it existed (remove the fallback after 2026-10-23,
+  // once every session has refreshed or expired).
+  const token = request.cookies.has("ac_session") || request.cookies.has("access_token");
 
   const isProtected = pathname.startsWith(PROTECTED_PREFIX);
   const isPublicAuth = PUBLIC_ROUTES.includes(pathname);

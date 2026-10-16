@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/auth.store";
+import { clearTokens, getAccessToken } from "@/lib/tokens";
 import {
   Sidebar,
   SidebarContent,
@@ -49,8 +50,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!isAuthenticated && typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
-      if (!token) router.push("/login");
+      if (!getAccessToken()) {
+        // Also clears the session cookie so middleware does not bounce
+        // /login straight back to /dashboard.
+        clearTokens();
+        router.push("/login");
+      }
     }
   }, [isAuthenticated, router]);
 

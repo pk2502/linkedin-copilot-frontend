@@ -1,4 +1,12 @@
 import api from "@/lib/axios";
+import { createSSEParser } from "@/lib/sse";
+import {
+  API_BASE,
+  SessionExpiredError,
+  getAccessToken,
+  handleSessionExpired,
+  refreshAccessToken,
+} from "@/lib/tokens";
 
 export type Tone = "formal" | "friendly" | "concise";
 
@@ -62,16 +70,25 @@ export const generationService = {
   },
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+/** Error raised by streaming generation; `status` is the HTTP status (0 = stream broke mid-way). */
+export class GenerationError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = "GenerationError";
+  }
+}
 
-async function streamGenerate(
-  endpoint: string,
-  payload: object,
-  onChunk: (chunk: string) => void,
-): Promise<void> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+/** User-facing message for a failed generation, or null when no message should be shown. */
+export function generationErrorMessage(error: unknown): string | null {
+  if (error instanceof GenerationError) {
+    if (error.status === 401) return null; // Session expired: already redirecting to /login.
+    if (error.status === 429) return "Daily limit reached (20 messages per day). Try again tomorrow.";
+  }
+  return "Failed to generate. Try again.";
+}
 
-  const response = await fetch(`${API_BASE}/api/generate/stream/${endpoint}/`, {
+function openStream(endpoint: string, payload: object, token: string | null): Promise<Response> {
+  return fetch(`${API_BASE}/api/generate/stream/${endpoint}/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -79,31 +96,56 @@ async function streamGenerate(
     },
     body: JSON.stringify(payload),
   });
+}
 
-  if (!response.ok) throw new Error("Stream request failed");
+async function streamGenerate(
+  endpoint: string,
+  payload: object,
+  onChunk: (chunk: string) => void,
+): Promise<void> {
+  let response = await openStream(endpoint, payload, getAccessToken());
 
-  const reader = response.body?.getReader();
-  const decoder = new TextDecoder();
-  if (!reader) throw new Error("No response body");
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    const text = decoder.decode(value, { stream: true });
-    const lines = text.split("\n");
-
-    for (const line of lines) {
-      if (line.startsWith("data: ")) {
-        const data = line.slice(6).trim();
-        if (data === "[DONE]") return;
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.chunk) onChunk(parsed.chunk);
-        } catch {}
+  // The backend authenticates before generating anything, so retrying once
+  // after a refresh cannot produce a duplicate message.
+  if (response.status === 401) {
+    let access: string;
+    try {
+      access = await refreshAccessToken();
+    } catch (refreshError) {
+      if (refreshError instanceof SessionExpiredError) {
+        handleSessionExpired();
+        throw new GenerationError(401, "Session expired");
       }
+      throw refreshError;
+    }
+    response = await openStream(endpoint, payload, access);
+    if (response.status === 401) {
+      handleSessionExpired();
+      throw new GenerationError(401, "Session expired");
     }
   }
+
+  if (!response.ok) throw new GenerationError(response.status, "Stream request failed");
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new GenerationError(response.status, "No response body");
+
+  const decoder = new TextDecoder();
+  const parser = createSSEParser(onChunk);
+
+  while (!parser.done) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    parser.push(decoder.decode(value, { stream: true }));
+  }
+  parser.push(decoder.decode());
+  parser.end();
+
+  if (!parser.done) {
+    // The server closed the stream without [DONE] (e.g. the AI provider failed).
+    throw new GenerationError(0, "Stream ended unexpectedly");
+  }
+  await reader.cancel().catch(() => {});
 }
 
 export const streamingService = {

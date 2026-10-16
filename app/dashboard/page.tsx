@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { streamingService } from "@/lib/generation";
+import { generationErrorMessage, streamingService } from "@/lib/generation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,20 +14,20 @@ export default function DashboardPage() {
   const [tone, setTone] = useState<Tone>("friendly");
   const [message, setMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
-    setError(false);
+    setError("");
     setIsStreaming(true);
 
     try {
       await streamingService.connectionRequest({ ...form, tone }, (chunk) => {
         setMessage((prev) => prev + chunk);
       });
-    } catch {
-      setError(true);
+    } catch (err) {
+      setError(generationErrorMessage(err) ?? "");
     } finally {
       setIsStreaming(false);
     }
@@ -70,7 +70,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {error && <p className="text-sm text-destructive">Failed to generate. Try again.</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
       {(message || isStreaming) && (
         <GeneratedMessageCard message={message} isStreaming={isStreaming} />
       )}
