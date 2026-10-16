@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { isAxiosError } from "axios";
 import { AuthUser, authService } from "@/lib/auth";
-import { setTokens, clearTokens } from "@/lib/axios";
-import { ensureSessionCookie, getAccessToken } from "@/lib/tokens";
+import { clearTokens } from "@/lib/axios";
+import { ensureSessionCookie, getAccessToken, startSession } from "@/lib/tokens";
 
 interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: AuthUser, access: string, refresh: string) => void;
+  setAuth: (user: AuthUser, access: string, refresh?: string | null) => void;
   logout: () => void;
   hydrate: () => Promise<void>;
 }
@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   setAuth: (user, access, refresh) => {
-    setTokens(access, refresh);
+    startSession(access, refresh);
     set({ user, accessToken: access, isAuthenticated: true });
   },
 

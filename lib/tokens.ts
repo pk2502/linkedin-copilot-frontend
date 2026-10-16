@@ -54,6 +54,16 @@ export function setTokens(access: string, refresh?: string) {
   ensureSessionCookie();
 }
 
+/**
+ * Store the tokens from a fresh sign-in. Unlike setTokens (used for rotation),
+ * a missing refresh token removes any stored one, so a token left over from an
+ * earlier session or another backend is never sent to /api/auth/refresh/.
+ */
+export function startSession(access: string, refresh?: string | null) {
+  if (!refresh) localStorage.removeItem(REFRESH_KEY);
+  setTokens(access, refresh ?? undefined);
+}
+
 export function clearTokens() {
   if (!isBrowser()) return;
   localStorage.removeItem(ACCESS_KEY);

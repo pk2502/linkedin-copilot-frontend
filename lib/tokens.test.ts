@@ -8,6 +8,7 @@ import {
   handleSessionExpired,
   refreshAccessToken,
   setTokens,
+  startSession,
 } from "@/lib/tokens";
 
 let env: ReturnType<typeof installBrowserStubs>;
@@ -50,6 +51,26 @@ describe("token storage", () => {
 
     expect(env.store.size).toBe(0);
     expect(env.cookies.size).toBe(0);
+  });
+});
+
+describe("startSession", () => {
+  it("drops a stale refresh token when the login response has none", () => {
+    env.store.set("refresh_token", "token-from-an-old-backend");
+
+    startSession("new-access", "");
+
+    expect(env.store.get("access_token")).toBe("new-access");
+    expect(env.store.has("refresh_token")).toBe(false);
+    expect(env.cookies.get("ac_session")).toBe("1");
+  });
+
+  it("stores the refresh token when the login response includes one", () => {
+    env.store.set("refresh_token", "old");
+
+    startSession("new-access", "new-refresh");
+
+    expect(env.store.get("refresh_token")).toBe("new-refresh");
   });
 });
 
