@@ -137,6 +137,28 @@ describe("streamingService", () => {
     expect(generationErrorMessage(error)).toBe("Failed to generate. Try again.");
   });
 
+  it("reports a provider failure sent as an error event", async () => {
+    fetchMock.mockResolvedValue(
+      sseResponse(['data: {"chunk": "Hi "}\n\n', 'data: {"error": "AI service unavailable. Try again."}\n\n'])
+    );
+
+    const error = await run().catch((e) => e);
+
+    expect(error).toBeInstanceOf(GenerationError);
+    expect(error.status).toBe(502);
+    expect(generationErrorMessage(error)).toBe("AI service is busy. Try again in a moment.");
+  });
+
+  it("maps validation and provider errors to clear messages", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(400, { name: ["This field may not be blank."] }));
+    const invalid = await run().catch((e) => e);
+    fetchMock.mockResolvedValue(jsonResponse(502, { error: "AI service unavailable. Try again." }));
+    const unavailable = await run().catch((e) => e);
+
+    expect(generationErrorMessage(invalid)).toBe("Check the fields and try again.");
+    expect(generationErrorMessage(unavailable)).toBe("AI service is busy. Try again in a moment.");
+  });
+
   it("shows the generic message for other failures", () => {
     expect(generationErrorMessage(new GenerationError(500, "x"))).toBe("Failed to generate. Try again.");
     expect(generationErrorMessage(new Error("boom"))).toBe("Failed to generate. Try again.");

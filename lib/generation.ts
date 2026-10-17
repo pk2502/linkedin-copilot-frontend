@@ -83,6 +83,8 @@ export function generationErrorMessage(error: unknown): string | null {
   if (error instanceof GenerationError) {
     if (error.status === 401) return null; // Session expired: already redirecting to /login.
     if (error.status === 429) return "Daily limit reached (20 messages per day). Try again tomorrow.";
+    if (error.status === 400) return "Check the fields and try again.";
+    if (error.status === 502) return "AI service is busy. Try again in a moment.";
   }
   return "Failed to generate. Try again.";
 }
@@ -141,6 +143,10 @@ async function streamGenerate(
   parser.push(decoder.decode());
   parser.end();
 
+  if (parser.error) {
+    // The AI provider failed after the stream started (backend error event).
+    throw new GenerationError(502, parser.error);
+  }
   if (!parser.done) {
     // The server closed the stream without [DONE] (e.g. the AI provider failed).
     throw new GenerationError(0, "Stream ended unexpectedly");

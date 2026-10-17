@@ -86,4 +86,22 @@ describe("createSSEParser", () => {
 
     expect(chunks).toEqual(["tail"]);
   });
+
+  it("stops at an error event and exposes its message", () => {
+    const { chunks, parser } = collect();
+
+    parser.push(event("Hi ") + 'data: {"error": "AI service unavailable. Try again."}\n\n' + event("ignored"));
+
+    expect(chunks).toEqual(["Hi "]);
+    expect(parser.done).toBe(true);
+    expect(parser.error).toBe("AI service unavailable. Try again.");
+  });
+
+  it("has no error for a normal stream", () => {
+    const { parser } = collect();
+
+    parser.push(event("Hi") + "data: [DONE]\n\n");
+
+    expect(parser.error).toBeNull();
+  });
 });

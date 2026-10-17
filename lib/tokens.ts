@@ -72,6 +72,31 @@ export function clearTokens() {
   writeCookie(LEGACY_TOKEN_COOKIE, "", 0);
 }
 
+/**
+ * Ask the backend to blacklist a refresh token (logout). Best-effort: local
+ * sign-out never waits for or depends on it. `keepalive` lets the request
+ * finish while the page navigates to /login.
+ */
+export async function revokeRefreshToken(refresh: string): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/api/auth/logout/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      keepalive: true,
+    });
+  } catch {
+    // Offline or backend down: the token still expires on its own.
+  }
+}
+
+/** Sign out locally right away and revoke the refresh token in the background. */
+export function endSession() {
+  const refresh = getRefreshToken();
+  clearTokens();
+  if (refresh) void revokeRefreshToken(refresh);
+}
+
 let refreshInFlight: Promise<string> | null = null;
 
 async function performRefresh(): Promise<string> {

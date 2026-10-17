@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { isAxiosError } from "axios";
 import { AuthUser, authService } from "@/lib/auth";
 import { clearTokens } from "@/lib/axios";
-import { ensureSessionCookie, getAccessToken, startSession } from "@/lib/tokens";
+import { endSession, ensureSessionCookie, getAccessToken, startSession } from "@/lib/tokens";
 
 interface AuthState {
   user: AuthUser | null;
@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    clearTokens();
+    endSession();
     set({ user: null, accessToken: null, isAuthenticated: false });
   },
 

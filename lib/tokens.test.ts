@@ -4,6 +4,7 @@ import {
   SessionExpiredError,
   __resetTokenStateForTests,
   clearTokens,
+  endSession,
   ensureSessionCookie,
   handleSessionExpired,
   refreshAccessToken,
@@ -153,5 +154,42 @@ describe("handleSessionExpired", () => {
 
     expect(env.store.size).toBe(0);
     expect(hrefs).toEqual(["/login"]);
+  });
+});
+
+describe("endSession", () => {
+  const LOGOUT_URL = "http://localhost:8001/api/auth/logout/";
+
+  it("clears tokens immediately and revokes the refresh token", () => {
+    setTokens("access-1", "refresh-1");
+    fetchMock.mockResolvedValue(jsonResponse(200, {}));
+
+    endSession();
+
+    expect(localStorage.getItem("access_token")).toBeNull();
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(LOGOUT_URL);
+    expect(JSON.parse(init.body)).toEqual({ refresh: "refresh-1" });
+    expect(init.keepalive).toBe(true);
+  });
+
+  it("still signs out when the logout request fails", async () => {
+    setTokens("access-1", "refresh-1");
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    expect(() => endSession()).not.toThrow();
+    await Promise.resolve();
+
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+  });
+
+  it("skips the request when there is no refresh token", () => {
+    setTokens("access-1");
+
+    endSession();
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
