@@ -12,7 +12,7 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:800
 const ACCESS_KEY = "access_token";
 const REFRESH_KEY = "refresh_token";
 
-/** Presence-only cookie read by middleware.ts; it never contains a token. */
+/** Presence-only cookie read by proxy.ts; it never contains a token. */
 export const SESSION_COOKIE = "ac_session";
 /** Cookie that used to hold the raw access token; cleared on sight. */
 export const LEGACY_TOKEN_COOKIE = "access_token";
@@ -41,7 +41,7 @@ export function getRefreshToken(): string | null {
   return isBrowser() ? localStorage.getItem(REFRESH_KEY) : null;
 }
 
-/** Mark the browser as signed in for middleware and drop the legacy token cookie. */
+/** Mark the browser as signed in for proxy.ts and drop the legacy token cookie. */
 export function ensureSessionCookie() {
   if (!isBrowser()) return;
   writeCookie(SESSION_COOKIE, "1", SESSION_MAX_AGE_SECONDS);

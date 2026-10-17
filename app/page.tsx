@@ -34,7 +34,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       {/* Nav */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-border sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-        <span className="text-base font-semibold tracking-tight">Li Copilot</span>
+        <span className="text-base font-semibold tracking-tight">ConnectPilot</span>
         <div className="flex items-center gap-3">
           <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Sign in
@@ -130,7 +130,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="px-8 py-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span>Li Copilot — AI networking assistant</span>
+        <span>ConnectPilot — AI networking assistant</span>
         <div className="flex items-center gap-4">
           <a href="https://github.com/pk2502/linkedin-copilot-extension" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
             Chrome Extension

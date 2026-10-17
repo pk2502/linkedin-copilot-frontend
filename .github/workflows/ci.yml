@@ -44,7 +44,5 @@ jobs:
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
-      # Informational until the existing lint problems are fixed (Phase 5).
-      - name: Lint (non-blocking)
-        continue-on-error: true
+      - name: Lint
         run: npm run lint

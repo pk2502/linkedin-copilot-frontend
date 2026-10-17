@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!isAuthenticated && typeof window !== "undefined") {
       if (!getAccessToken()) {
-        // Also clears the session cookie so middleware does not bounce
+        // Also clears the session cookie so proxy.ts does not bounce
         // /login straight back to /dashboard.
         clearTokens();
         router.push("/login");
@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar>
           <SidebarContent>
             <div className="px-4 py-4 border-b border-border">
-              <h1 className="text-base font-semibold tracking-tight">LinkedIn Copilot</h1>
+              <h1 className="text-base font-semibold tracking-tight">ConnectPilot</h1>
               {user && (
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {user.username}

@@ -1,38 +1,59 @@
 [![CI](https://github.com/pk2502/linkedin-copilot-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/pk2502/linkedin-copilot-frontend/actions/workflows/ci.yml)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ConnectPilot Web App
 
-## Getting Started
+Next.js frontend for ConnectPilot: draft LinkedIn connection requests, referral asks, recruiter replies and follow-ups with AI, review them, and send them yourself. Live at [li-copilot.vercel.app](https://li-copilot.vercel.app).
 
-First, run the development server:
+Related repositories: [backend](https://github.com/pk2502/linkedin-copilot-backend) (Django REST API on Render) and [Chrome extension](https://github.com/pk2502/linkedin-copilot-extension).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 4 with shadcn/ui components, TanStack Query, Zustand, axios, Vitest.
+
+## Local setup
+
+Requirements: Node.js 22 and the backend running on `http://localhost:8001` (see the backend README).
+
+```sh
+npm ci
+npm run dev   # http://localhost:3000; put any variables below in .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | Deployed builds | Backend base URL, no trailing slash. Defaults to `http://localhost:8001`. |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | For Google sign-in | Google OAuth web client ID. Without it the Google button is not usable. |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put secrets in them. On Vercel they are Config variables set for Production and Preview.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm test` | Vitest unit tests |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run build` | Production build |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How it works
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Auth.** Username/password or Google sign-in returns a JWT pair. Tokens live in `localStorage`; a presence-only `ac_session` cookie (never a token) lets `proxy.ts` redirect signed-out visitors away from `/dashboard` and signed-in visitors away from `/login` and `/register`. Access tokens are refreshed transparently with one shared in-flight refresh (`lib/tokens.ts`), because the backend rotates and blacklists refresh tokens. Logout revokes the refresh token on the backend.
+- **Generation.** The four dashboard pages stream drafts over SSE (`lib/generation.ts`, `lib/sse.ts`). Validation errors (400), the daily limit (429) and AI provider failures (502 or an in-stream error event) get specific messages.
+- **Extension sign-in.** `/connect-extension` detects the ConnectPilot extension, asks the backend for a separate token pair (`POST /api/auth/extension-token/`) and hands it to the extension via same-origin `postMessage`. The web session is never shared. Signed-out users go through `/login?next=/connect-extension`; `next` only accepts same-site paths.
 
-## Deploy on Vercel
+## Tests and CI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Tests cover token storage and refresh, the axios interceptor, SSE parsing, streaming generation and error mapping, redirect validation and the extension handshake (`lib/*.test.ts`). They mock `fetch` and never call the real API.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub Actions runs `npm ci`, tests, type check, build, lint and `npm audit --omit=dev` on every push and pull request.
+
+### Known audit findings
+
+`npm audit` (including dev dependencies) reports high-severity findings for `braces` ≤ 3.0.3 (deeply nested glob patterns can exhaust the stack). It comes in only through build and lint tooling (`shadcn`, `eslint-config-next`), never handles untrusted input and is not shipped to users; `npm audit --omit=dev` is clean. No fixed `braces` release exists yet, and npm's suggested fix is a major-version downgrade of those tools, so it is accepted until upstream ships a fix.
+
+## Deployment
+
+Vercel deploys `main` to production and every other branch to a preview URL. Previews use the production API (allowed by the backend's preview CORS pattern). Google sign-in only works on the production domain.

@@ -44,12 +44,12 @@ export default function ReferralPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Details</CardTitle>
-          <CardDescription>Fill in the referrer's info and the role you're applying for.</CardDescription>
+          <CardDescription>Fill in the referrer&apos;s info and the role you&apos;re applying for.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="name">Referrer's Name</Label>
+              <Label htmlFor="name">Referrer&apos;s Name</Label>
               <Input id="name" placeholder="Jane Smith" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             </div>
@@ -59,12 +59,12 @@ export default function ReferralPage() {
                 onChange={(e) => setForm({ ...form, company: e.target.value })} required />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="role">Referrer's Role</Label>
+              <Label htmlFor="role">Referrer&apos;s Role</Label>
               <Input id="role" placeholder="Senior Engineer" value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })} required />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="job_title">Job Title You're Applying For</Label>
+              <Label htmlFor="job_title">Job Title You&apos;re Applying For</Label>
               <Input id="job_title" placeholder="Frontend Engineer" value={form.job_title}
                 onChange={(e) => setForm({ ...form, job_title: e.target.value })} required />
             </div>

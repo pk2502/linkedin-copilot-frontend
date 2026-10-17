@@ -40,7 +40,7 @@ export default function LoginPage() {
     <Card>
       <CardHeader>
         <CardTitle>Welcome back</CardTitle>
-        <CardDescription>Sign in to your LinkedIn Copilot account</CardDescription>
+        <CardDescription>Sign in to your ConnectPilot account</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">

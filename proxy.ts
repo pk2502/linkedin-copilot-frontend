@@ -5,7 +5,7 @@ import { safeNextPath } from "@/lib/navigation";
 const PUBLIC_ROUTES = ["/login", "/register"];
 const PROTECTED_PREFIX = "/dashboard";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // ac_session is a presence flag set by the client; access_token is the
   // legacy cookie from before it existed (remove the fallback after 2026-10-23,

@@ -45,7 +45,7 @@ export default function RecruiterPage() {
     <div className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Recruiter Reply</h2>
-        <p className="text-sm text-muted-foreground">Reply professionally to a recruiter's message.</p>
+        <p className="text-sm text-muted-foreground">Reply professionally to a recruiter&apos;s message.</p>
       </div>
       <Card>
         <CardHeader>
@@ -55,7 +55,7 @@ export default function RecruiterPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="recruiter_name">Recruiter's Name</Label>
+              <Label htmlFor="recruiter_name">Recruiter&apos;s Name</Label>
               <Input id="recruiter_name" placeholder="John Doe" value={form.recruiter_name}
                 onChange={(e) => setForm({ ...form, recruiter_name: e.target.value })} required />
             </div>

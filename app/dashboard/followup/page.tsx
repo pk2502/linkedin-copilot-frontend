@@ -44,7 +44,7 @@ export default function FollowupPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Details</CardTitle>
-          <CardDescription>Describe your previous interaction and who you're following up with.</CardDescription>
+          <CardDescription>Describe your previous interaction and who you&apos;re following up with.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { authService } from "@/lib/auth";
 import { useAuthStore } from "@/lib/auth.store";
 import { nextPathFromLocation } from "@/lib/navigation";
@@ -12,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { GoogleLoginButton } from "@/components/google-login-button";
+
+/** DRF validation errors: field name -> messages. */
+type RegisterErrorBody = Partial<Record<"username" | "email" | "password", string[]>>;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,8 +29,8 @@ export default function RegisterPage() {
       setAuth(data.user, data.access, data.refresh);
       router.push(nextPathFromLocation());
     },
-    onError: (err: any) => {
-      const detail = err?.response?.data;
+    onError: (err) => {
+      const detail = isAxiosError<RegisterErrorBody>(err) ? err.response?.data : undefined;
       if (detail?.username) setError(`Username: ${detail.username[0]}`);
       else if (detail?.password) setError(`Password: ${detail.password[0]}`);
       else setError("Registration failed. Please try again.");

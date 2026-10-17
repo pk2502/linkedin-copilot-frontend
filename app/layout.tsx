@@ -15,19 +15,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Li Copilot — AI LinkedIn Message Generator",
+  title: "ConnectPilot — AI LinkedIn Message Drafts",
   description: "Generate personalized LinkedIn connection requests, referral asks, recruiter replies, and follow-ups in seconds. Powered by AI.",
   keywords: ["LinkedIn", "AI", "networking", "job search", "connection request", "referral"],
   openGraph: {
-    title: "Li Copilot — AI LinkedIn Message Generator",
+    title: "ConnectPilot — AI LinkedIn Message Drafts",
     description: "Write better LinkedIn messages in seconds with AI.",
     url: "https://li-copilot.vercel.app",
-    siteName: "Li Copilot",
+    siteName: "ConnectPilot",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Li Copilot — AI LinkedIn Message Generator",
+    title: "ConnectPilot — AI LinkedIn Message Drafts",
     description: "Write better LinkedIn messages in seconds with AI.",
   },
 };
