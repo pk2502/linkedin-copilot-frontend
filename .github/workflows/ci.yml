@@ -17,7 +17,6 @@ jobs:
     timeout-minutes: 15
     env:
       NEXT_TELEMETRY_DISABLED: "1"
-      NEXT_PUBLIC_API_URL: https://connectpilot-api.onrender.com
     steps:
       - uses: actions/checkout@v5
 
@@ -35,7 +34,11 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      # Only the build needs the production API URL; tests expect the
+      # localhost default.
       - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: https://connectpilot-api.onrender.com
         run: npm run build
 
       - name: Audit production dependencies
