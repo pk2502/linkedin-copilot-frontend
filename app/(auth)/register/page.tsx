@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "@/lib/auth";
 import { useAuthStore } from "@/lib/auth.store";
+import { nextPathFromLocation } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,7 @@ export default function RegisterPage() {
     mutationFn: authService.register,
     onSuccess: (data) => {
       setAuth(data.user, data.access, data.refresh);
-      router.push("/dashboard");
+      router.push(nextPathFromLocation());
     },
     onError: (err: any) => {
       const detail = err?.response?.data;

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { safeNextPath } from "@/lib/navigation";
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 const PROTECTED_PREFIX = "/dashboard";
@@ -21,10 +22,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Has token + trying to access login/register → redirect to dashboard
+  // Has token + trying to access login/register → go to ?next= (same-site only) or dashboard
   if (isPublicAuth && token) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = safeNextPath(request.nextUrl.searchParams.get("next"));
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

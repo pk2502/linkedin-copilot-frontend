@@ -42,6 +42,12 @@ export const authService = {
     return data;
   },
 
+  /** Mint a separate token pair for the browser extension (see /connect-extension). */
+  extensionToken: async (): Promise<{ access: string; refresh: string }> => {
+    const { data } = await api.post("/api/auth/extension-token/");
+    return data;
+  },
+
   googleLogin: async (code: string): Promise<AuthResponse> => {
     const { data } = await api.post("/api/auth/social/google/", { code });
     const user = await authService.me(data.access);

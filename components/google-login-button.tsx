@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authService } from "@/lib/auth";
 import { useAuthStore } from "@/lib/auth.store";
+import { nextPathFromLocation } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 
 export function GoogleLoginButton() {
@@ -20,7 +21,7 @@ export function GoogleLoginButton() {
       try {
         const data = await authService.googleLogin(response.code);
         setAuth(data.user, data.access, data.refresh);
-        router.push("/dashboard");
+        router.push(nextPathFromLocation());
       } catch {
         setError("Google login failed. Try again.");
       } finally {
