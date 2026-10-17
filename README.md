@@ -44,6 +44,10 @@ Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put sec
 - **Generation.** The four dashboard pages stream drafts over SSE (`lib/generation.ts`, `lib/sse.ts`). Validation errors (400), the daily limit (429) and AI provider failures (502 or an in-stream error event) get specific messages.
 - **Extension sign-in.** `/connect-extension` detects the ConnectPilot extension, asks the backend for a separate token pair (`POST /api/auth/extension-token/`) and hands it to the extension via same-origin `postMessage`. The web session is never shared. Signed-out users go through `/login?next=/connect-extension`; `next` only accepts same-site paths.
 
+## Privacy policy
+
+`/privacy` is the public privacy policy used by the Chrome Web Store listing. Update it (and its date) whenever the app starts collecting or sharing anything new.
+
 ## Tests and CI
 
 Tests cover token storage and refresh, the axios interceptor, SSE parsing, streaming generation and error mapping, redirect validation and the extension handshake (`lib/*.test.ts`). They mock `fetch` and never call the real API.

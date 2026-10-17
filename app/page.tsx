@@ -137,6 +137,7 @@ export default function HomePage() {
           </a>
           <Link href="/login" className="hover:text-foreground transition-colors">Sign in</Link>
           <Link href="/register" className="hover:text-foreground transition-colors">Register</Link>
+          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
         </div>
       </footer>
     </div>
