@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { Composer } from "@/components/composer";
+import { FollowUpsDue } from "@/components/follow-ups-due";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 
 export default function DashboardPage() {
@@ -14,6 +15,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      <FollowUpsDue />
       <OnboardingChecklist />
 
       {/* The composer reads ?type= from the URL. */}

@@ -18,8 +18,9 @@ export function useDraft(type: DraftType) {
     setResult(null);
     try {
       setResult(await draftService.create(type, fields, tone));
-      // The first draft ticks off a step of the dashboard checklist.
+      // A draft ticks off a checklist step and adds the person to the tracker.
       queryClient.invalidateQueries({ queryKey: ["onboarding"] });
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
     } catch (err) {
       setError(draftErrorMessage(err) ?? "");
     } finally {

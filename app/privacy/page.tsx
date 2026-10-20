@@ -63,6 +63,13 @@ export default function PrivacyPage() {
                 generated (including rewrites you ask for). These are saved to your history so you can find and reuse them.
               </li>
               <li>
+                <strong className="text-foreground">Your outreach tracker.</strong> For each person you
+                draft a message to: their name, company, role and (from the extension) LinkedIn profile URL,
+                whether you sent it and when, whether they replied (the extension notes this when you open a
+                conversation where they wrote last; the messages themselves are not stored), when to follow
+                up, and any notes you add. Delete a person from the tracker to remove this.
+              </li>
+              <li>
                 <strong className="text-foreground">Your display name</strong> (or username) is included in
                 the request so the draft can be signed as you.
               </li>

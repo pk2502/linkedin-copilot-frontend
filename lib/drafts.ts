@@ -15,6 +15,8 @@ export const TWEAKS: { value: TweakInstruction; label: string }[] = [
 export interface DraftResult {
   id: number;
   variants: string[];
+  /** The tracker contact this draft was filed under, if any. */
+  contact_id?: number | null;
 }
 
 export interface TweakResult {

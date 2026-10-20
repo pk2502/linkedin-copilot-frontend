@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,7 @@ import {
   type ComposerForm,
   type FieldSpec,
 } from "@/lib/composer";
+import { contactService } from "@/lib/contacts";
 import type { DraftType } from "@/lib/drafts";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +35,13 @@ export function Composer() {
   const type = parseType(searchParams.get("type"));
   const spec = specFor(type);
 
-  const [form, setForm] = useState<ComposerForm>(EMPTY_FORM);
+  // ?name=&company=&role= prefill the form (links from the tracker).
+  const [form, setForm] = useState<ComposerForm>(() => ({
+    ...EMPTY_FORM,
+    name: searchParams.get("name") ?? "",
+    company: searchParams.get("company") ?? "",
+    role: searchParams.get("role") ?? "",
+  }));
   const [tone, setTone] = useState<Tone>("friendly");
   const { result, loading, error, generate, reset } = useDraft(type);
 
@@ -92,6 +101,37 @@ export function Composer() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DraftVariants result={result} loading={loading} />
+      {result?.contact_id && <MarkSent key={result.id} contactId={result.contact_id} />}
+    </div>
+  );
+}
+
+/** Copying can't be detected, so the user tells the tracker when they sent it. */
+function MarkSent({ contactId }: { contactId: number }) {
+  const queryClient = useQueryClient();
+  const mark = useMutation({
+    mutationFn: () => contactService.update(contactId, { status: "sent" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      queryClient.invalidateQueries({ queryKey: ["contacts-due"] });
+    },
+  });
+
+  if (mark.isSuccess) {
+    return (
+      <p className="text-sm text-muted-foreground" role="status">
+        Marked as sent. It&apos;s in your <Link href="/dashboard/tracker" className="underline underline-offset-4">tracker</Link>,
+        and you&apos;ll be reminded to follow up if they don&apos;t reply.
+      </p>
+    );
+  }
+  return (
+    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+      <span>Sent one of these on LinkedIn?</span>
+      <Button size="sm" variant="outline" disabled={mark.isPending} onClick={() => mark.mutate()}>
+        Mark as sent
+      </Button>
+      {mark.isError && <span className="text-destructive">Couldn&apos;t update. Try again.</span>}
     </div>
   );
 }

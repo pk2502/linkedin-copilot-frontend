@@ -18,13 +18,16 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { MessageSquarePlus, Clock, LogOut, UserRound } from "lucide-react";
+import { MessageSquarePlus, Clock, ListChecks, LogOut, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
     label: "Write",
-    items: [{ title: "New message", href: "/dashboard", icon: MessageSquarePlus }],
+    items: [
+      { title: "New message", href: "/dashboard", icon: MessageSquarePlus },
+      { title: "Tracker", href: "/dashboard/tracker", icon: ListChecks },
+    ],
   },
   {
     label: "You",
