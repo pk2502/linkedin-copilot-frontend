@@ -90,8 +90,15 @@ export default function PrivacyPage() {
             <p>
               The About, experience, education and job description text is sent to our AI provider only to
               write that draft and is <strong className="text-foreground">not stored</strong>; your history
-              keeps only the name, role, company and job title. The extension does not read your messages,
-              connections or browsing history, and it does not run in the background.
+              keeps only the name, role, company and job title. The extension does not read your connections
+              or browsing history, and it does not run in the background.
+            </p>
+            <p>
+              When you open the extension on a LinkedIn conversation, it reads the last messages of that one
+              conversation you have open (up to about 4,000 characters: who wrote each message, when, and
+              the text) so it can draft your reply or follow-up. These messages are sent to our AI provider
+              only to write that draft and are <strong className="text-foreground">not stored</strong>. The
+              extension never reads other conversations or your inbox.
             </p>
             <p>
               On your own LinkedIn profile, the extension can import your headline, About, experience,
