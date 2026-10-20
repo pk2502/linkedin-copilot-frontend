@@ -45,7 +45,9 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Account details.</strong> Your username, email address and
                 password (stored only as a salted hash). If you sign in with Google, we receive your Google
-                account&apos;s name, email address and account identifier.
+                account&apos;s name, email address and account identifier. If you sign in with LinkedIn, we
+                receive your LinkedIn name, email address, profile photo link and account identifier, and nothing
+                else from your LinkedIn account.
               </li>
               <li>
                 <strong className="text-foreground">Your profile, if you fill it in.</strong> Headline, summary,

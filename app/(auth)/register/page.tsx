@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { GoogleLoginButton } from "@/components/google-login-button";
+import { LinkedInLoginButton } from "@/components/linkedin-login-button";
 
 /** DRF validation errors: field name -> messages. */
 type RegisterErrorBody = Partial<Record<"username" | "email" | "password", string[]>>;
@@ -81,6 +82,7 @@ export default function RegisterPage() {
             </div>
           </div>
           <GoogleLoginButton />
+          <LinkedInLoginButton />
           <p className="text-sm text-muted-foreground text-center">
             Already have an account?{" "}
             <Link href="/login" className="text-foreground underline underline-offset-4">Sign in</Link>

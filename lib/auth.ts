@@ -48,6 +48,12 @@ export const authService = {
     return data;
   },
 
+  linkedinLogin: async (code: string, redirectUri: string): Promise<AuthResponse> => {
+    const { data } = await api.post("/api/auth/social/linkedin/", { code, redirect_uri: redirectUri });
+    const user = await authService.me(data.access);
+    return { ...data, user };
+  },
+
   googleLogin: async (code: string): Promise<AuthResponse> => {
     const { data } = await api.post("/api/auth/social/google/", { code });
     const user = await authService.me(data.access);

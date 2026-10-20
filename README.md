@@ -25,6 +25,7 @@ npm run dev   # http://localhost:3000; put any variables below in .env.local
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | Deployed builds | Backend base URL, no trailing slash. Defaults to `http://localhost:8001`. |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | For Google sign-in | Google OAuth web client ID. Without it the Google button is not usable. |
+| `NEXT_PUBLIC_LINKEDIN_CLIENT_ID` | For LinkedIn sign-in | LinkedIn app client ID. Without it the "Continue with LinkedIn" button is hidden. The app must allow `<site>/auth/linkedin/callback` as a redirect URL. |
 | `NEXT_PUBLIC_EXTENSION_URL` | Optional | Where the dashboard checklist sends users for the extension (set to the Chrome Web Store listing once published). Defaults to the extension's GitHub install instructions. |
 
 All are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put secrets in them. On Vercel they are Config variables set for Production and Preview.
