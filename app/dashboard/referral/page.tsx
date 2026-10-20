@@ -13,7 +13,7 @@ import { ToneSelector, Tone } from "@/components/tone-selector";
 
 export default function ReferralPage() {
   const [form, setForm] = useState({
-    name: "", company: "", role: "", job_title: "", your_background: "",
+    name: "", company: "", role: "", job_title: "", your_background: "", job_description: "",
   });
   const [tone, setTone] = useState<Tone>("friendly");
   const { result, loading, error, generate } = useDraft("referral_request");
@@ -57,6 +57,16 @@ export default function ReferralPage() {
               <Label htmlFor="job_title">Job Title You&apos;re Applying For</Label>
               <Input id="job_title" placeholder="Frontend Engineer" value={form.job_title}
                 onChange={(e) => setForm({ ...form, job_title: e.target.value })} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="job_description">
+                Job Description <span className="font-normal text-muted-foreground">(optional)</span>
+              </Label>
+              <Textarea id="job_description" rows={4} maxLength={6000}
+                placeholder="Paste the job posting. Drafts will match your strongest fits to its requirements."
+                value={form.job_description}
+                onChange={(e) => setForm({ ...form, job_description: e.target.value })} />
+              <p className="text-xs text-muted-foreground">Used to write this draft only; not saved.</p>
             </div>
             <div className="space-y-1">
               <Label htmlFor="your_background">Your Background <span className="font-normal text-muted-foreground">(optional)</span></Label>

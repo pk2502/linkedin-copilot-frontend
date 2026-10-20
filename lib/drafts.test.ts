@@ -34,6 +34,19 @@ afterEach(() => {
 });
 
 describe("draftService", () => {
+  it("passes an optional job description through for referrals", async () => {
+    api.defaults.adapter = adapter(201, { id: 8, variants: ["a", "b", "c"] });
+
+    await draftService.create("referral_request", { name: "Rahul", job_description: "7+ years React" }, "friendly");
+
+    expect(requests[0].body).toEqual({
+      type: "referral_request",
+      tone: "friendly",
+      name: "Rahul",
+      job_description: "7+ years React",
+    });
+  });
+
   it("posts the type, tone and fields and returns the variants", async () => {
     api.defaults.adapter = adapter(201, { id: 7, variants: ["a", "b", "c"] });
 

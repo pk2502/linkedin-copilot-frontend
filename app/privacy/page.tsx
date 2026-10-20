@@ -74,11 +74,22 @@ export default function PrivacyPage() {
 
           <Section title="The Chrome extension">
             <p>
-              When you open the extension on a LinkedIn profile, it reads the name, role and company shown on
-              that page to pre-fill the form. This happens only when you open it, only on the page you are
-              viewing, and nothing is sent anywhere until you click Generate. You can edit or clear the fields
-              first. The extension does not read your messages, connections or browsing history, and it does
-              not run in the background.
+              When you open the extension on a LinkedIn profile, it reads the visible name, role and company,
+              and the About, experience and education sections shown on that page. On a LinkedIn job posting it
+              reads the job title, company and description, and keeps that job in the extension on your device
+              for up to 24 hours if you choose to use it for a referral request. This happens only when you open
+              the extension, only on the page you are viewing, and the extension shows you what it read. Nothing
+              is sent anywhere until you click Generate, and you can clear the page details first.
+            </p>
+            <p>
+              The About, experience, education and job description text is sent to our AI provider only to
+              write that draft and is <strong className="text-foreground">not stored</strong>; your history
+              keeps only the name, role, company and job title. The extension does not read your messages,
+              connections or browsing history, and it does not run in the background.
+            </p>
+            <p>
+              If you click Insert, the extension types the draft into the LinkedIn message box you have open.
+              It never presses Send or clicks anything else; you review and send the message yourself.
             </p>
             <p>
               The extension stores its sign-in tokens in Chrome&apos;s local extension storage on your device.
