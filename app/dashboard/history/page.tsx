@@ -15,14 +15,31 @@ const TYPE_LABELS: Record<string, string> = {
   followup: "Follow-Up",
 };
 
-function GenerationItem({ item, onDelete }: { item: Generation; onDelete: (id: number) => void }) {
-  const [copied, setCopied] = useState(false);
+const TWEAK_LABELS: Record<string, string> = {
+  shorter: "shorter",
+  warmer: "warmer",
+  more_specific: "more specific",
+  more_formal: "more formal",
+};
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
   const handleCopy = () => {
-    navigator.clipboard.writeText(item.output);
+    navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+  return (
+    <Button variant="ghost" size="sm" onClick={handleCopy}>
+      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+    </Button>
+  );
+}
+
+function GenerationItem({ item, onDelete }: { item: Generation; onDelete: (id: number) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const options = item.variants?.length > 1 ? item.variants : [];
+  const tweak = item.parent ? TWEAK_LABELS[String(item.input_data.instruction)] : undefined;
 
   const date = new Date(item.created_at).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
@@ -35,13 +52,12 @@ function GenerationItem({ item, onDelete }: { item: Generation; onDelete: (id: n
           <div>
             <CardTitle className="text-sm font-medium">
               {TYPE_LABELS[item.generation_type] ?? item.generation_type}
+              {tweak && <span className="font-normal text-muted-foreground"> · tweaked: {tweak}</span>}
             </CardTitle>
             <CardDescription className="text-xs">{date}</CardDescription>
           </div>
           <div className="flex gap-1 shrink-0">
-            <Button variant="ghost" size="sm" onClick={handleCopy}>
-              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-            </Button>
+            <CopyButton text={item.output} />
             <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}
               className="text-destructive hover:text-destructive">
               <Trash2 className="size-3.5" />
@@ -49,8 +65,27 @@ function GenerationItem({ item, onDelete }: { item: Generation; onDelete: (id: n
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-3">{item.output}</p>
+      <CardContent className="space-y-2">
+        {!expanded && <p className="text-sm text-muted-foreground line-clamp-3">{item.output}</p>}
+        {expanded &&
+          options.map((text, index) => (
+            <div key={index} className="flex items-start gap-2 rounded-md border border-border p-2">
+              <p className="flex-1 text-sm text-muted-foreground whitespace-pre-line">
+                <span className="font-medium text-foreground">Option {index + 1}: </span>
+                {text}
+              </p>
+              <CopyButton text={text} />
+            </div>
+          ))}
+        {options.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? "Show less" : `Show all ${options.length} options`}
+          </button>
+        )}
       </CardContent>
     </Card>
   );

@@ -41,7 +41,8 @@ Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put sec
 ## How it works
 
 - **Auth.** Username/password or Google sign-in returns a JWT pair. Tokens live in `localStorage`; a presence-only `ac_session` cookie (never a token) lets `proxy.ts` redirect signed-out visitors away from `/dashboard` and signed-in visitors away from `/login` and `/register`. Access tokens are refreshed transparently with one shared in-flight refresh (`lib/tokens.ts`), because the backend rotates and blacklists refresh tokens. Logout revokes the refresh token on the backend.
-- **Generation.** The four dashboard pages stream drafts over SSE (`lib/generation.ts`, `lib/sse.ts`). Validation errors (400), the daily limit (429) and AI provider failures (502 or an in-stream error event) get specific messages.
+- **Profile.** `/dashboard/profile` stores the user's headline, summary, skills, target roles, experience highlights and a writing sample (`GET`/`PUT /api/profile/`). Every draft uses it; the generators show a nudge while it is under 50% complete.
+- **Drafts.** The four generator pages call `POST /api/drafts/`, which returns three variants (different angles) in one request. Each variant can be tweaked (shorter, warmer, more specific, more formal) via `POST /api/drafts/<id>/tweak/`. Validation errors (400), the daily limit (429) and AI provider failures (502) get specific messages (`lib/drafts.ts`). The older streaming client (`lib/generation.ts`, `lib/sse.ts`) is no longer used by the pages and will be removed once no client needs the original endpoints.
 - **Extension sign-in.** `/connect-extension` detects the ConnectPilot extension, asks the backend for a separate token pair (`POST /api/auth/extension-token/`) and hands it to the extension via same-origin `postMessage`. The web session is never shared. Signed-out users go through `/login?next=/connect-extension`; `next` only accepts same-site paths.
 
 ## Privacy policy
@@ -50,7 +51,7 @@ Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put sec
 
 ## Tests and CI
 
-Tests cover token storage and refresh, the axios interceptor, SSE parsing, streaming generation and error mapping, redirect validation and the extension handshake (`lib/*.test.ts`). They mock `fetch` and never call the real API.
+Tests cover token storage and refresh, the axios interceptor, drafts, tweaks and profile API calls and their error messages, SSE parsing, streaming generation, redirect validation and the extension handshake (`lib/*.test.ts`). They mock `fetch` and never call the real API.
 
 GitHub Actions runs `npm ci`, tests, type check, build, lint and `npm audit --omit=dev` on every push and pull request.
 

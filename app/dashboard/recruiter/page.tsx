@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { generationErrorMessage, streamingService } from "@/lib/generation";
+import { useDraft } from "@/hooks/use-draft";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GeneratedMessageCard } from "@/components/generated-message-card";
+import { DraftVariants } from "@/components/draft-variants";
+import { ProfileNudge } from "@/components/profile-nudge";
 import { ToneSelector, Tone } from "@/components/tone-selector";
 
 const INTEREST_LEVELS = [
@@ -21,24 +22,11 @@ export default function RecruiterPage() {
     recruiter_name: "", company: "", job_title: "", your_background: "", interest_level: "very interested",
   });
   const [tone, setTone] = useState<Tone>("friendly");
-  const [message, setMessage] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [error, setError] = useState("");
+  const { result, loading, error, generate } = useDraft("recruiter_reply");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
-    setIsStreaming(true);
-    try {
-      await streamingService.recruiterReply({ ...form, tone }, (chunk) => {
-        setMessage((prev) => prev + chunk);
-      });
-    } catch (err) {
-      setError(generationErrorMessage(err) ?? "");
-    } finally {
-      setIsStreaming(false);
-    }
+    generate(form, tone);
   };
 
   return (
@@ -47,6 +35,8 @@ export default function RecruiterPage() {
         <h2 className="text-xl font-semibold">Recruiter Reply</h2>
         <p className="text-sm text-muted-foreground">Reply professionally to a recruiter&apos;s message.</p>
       </div>
+      <ProfileNudge />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Details</CardTitle>
@@ -70,9 +60,9 @@ export default function RecruiterPage() {
                 onChange={(e) => setForm({ ...form, job_title: e.target.value })} required />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="your_background">Your Background</Label>
-              <Textarea id="your_background" placeholder="3 years React experience..." value={form.your_background}
-                rows={3} onChange={(e) => setForm({ ...form, your_background: e.target.value })} required />
+              <Label htmlFor="your_background">Your Background <span className="font-normal text-muted-foreground">(optional)</span></Label>
+              <Textarea id="your_background" placeholder="Leave empty to use your profile, or add details for this role" value={form.your_background}
+                rows={3} onChange={(e) => setForm({ ...form, your_background: e.target.value })} />
             </div>
             <div className="space-y-1">
               <Label htmlFor="interest_level">Interest Level</Label>
@@ -85,14 +75,14 @@ export default function RecruiterPage() {
               </select>
             </div>
             <ToneSelector value={tone} onChange={setTone} />
-            <Button type="submit" disabled={isStreaming} className="w-full">
-              {isStreaming ? "Generating..." : "Generate Reply"}
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Writing 3 drafts..." : "Generate 3 Drafts"}
             </Button>
           </form>
         </CardContent>
       </Card>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {(message || isStreaming) && <GeneratedMessageCard message={message} isStreaming={isStreaming} />}
+      <DraftVariants result={result} loading={loading} />
     </div>
   );
 }

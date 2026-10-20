@@ -18,7 +18,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { MessageSquarePlus, Users, UserCheck, RefreshCw, Clock, LogOut } from "lucide-react";
+import { MessageSquarePlus, Users, UserCheck, RefreshCw, Clock, LogOut, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -32,8 +32,9 @@ const navItems = [
     ],
   },
   {
-    label: "History",
+    label: "You",
     items: [
+      { title: "My Profile", href: "/dashboard/profile", icon: UserRound },
       { title: "My Generations", href: "/dashboard/history", icon: Clock },
     ],
   },

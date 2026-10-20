@@ -48,10 +48,16 @@ export default function PrivacyPage() {
                 account&apos;s name, email address and account identifier.
               </li>
               <li>
+                <strong className="text-foreground">Your profile, if you fill it in.</strong> Headline, summary,
+                skills, the roles you are looking for, experience highlights and a writing sample. You type or
+                paste these yourself; we never import them from LinkedIn. They are used only to personalise your
+                drafts and are visible only to you.
+              </li>
+              <li>
                 <strong className="text-foreground">What you ask us to draft.</strong> The details you enter
                 for a message (for example a recipient&apos;s name, company and role, the job you are applying
-                for, your background, or context for a follow-up), the tone you choose, and the draft that is
-                generated. These are saved to your history so you can find and reuse them.
+                for, your background, or context for a follow-up), the tone you choose, and the drafts that are
+                generated (including rewrites you ask for). These are saved to your history so you can find and reuse them.
               </li>
               <li>
                 <strong className="text-foreground">Your display name</strong> (or username) is included in
