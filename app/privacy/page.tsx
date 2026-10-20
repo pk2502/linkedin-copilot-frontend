@@ -50,8 +50,11 @@ export default function PrivacyPage() {
               <li>
                 <strong className="text-foreground">Your profile, if you fill it in.</strong> Headline, summary,
                 skills, the roles you are looking for, experience highlights and a writing sample. You type or
-                paste these yourself; we never import them from LinkedIn. They are used only to personalise your
-                drafts and are visible only to you.
+                paste these, fill them from a resume you upload, or import them with the extension from your own
+                LinkedIn profile page when you choose to. An uploaded resume is sent to our AI provider only to
+                suggest these fields and is <strong className="text-foreground">not stored</strong>; we keep
+                only the fields you save. Your profile is used only to personalise your drafts and is visible
+                only to you.
               </li>
               <li>
                 <strong className="text-foreground">What you ask us to draft.</strong> The details you enter
@@ -78,14 +81,22 @@ export default function PrivacyPage() {
               and the About, experience and education sections shown on that page. On a LinkedIn job posting it
               reads the job title, company and description, and keeps that job in the extension on your device
               for up to 24 hours if you choose to use it for a referral request. This happens only when you open
-              the extension, only on the page you are viewing, and the extension shows you what it read. Nothing
-              is sent anywhere until you click Generate, and you can clear the page details first.
+              the extension, only on the page you are viewing, and the extension shows you what it read. With
+              auto-draft on (the default), opening the extension on a page with enough details sends them to
+              write drafts right away; turn auto-draft off in the extension to send nothing until you click
+              Generate, and clear the page details first if you want. Drafts are kept in the extension until
+              you close Chrome (at most 24 hours) so reopening it does not generate them again.
             </p>
             <p>
               The About, experience, education and job description text is sent to our AI provider only to
               write that draft and is <strong className="text-foreground">not stored</strong>; your history
               keeps only the name, role, company and job title. The extension does not read your messages,
               connections or browsing history, and it does not run in the background.
+            </p>
+            <p>
+              On your own LinkedIn profile, the extension can import your headline, About, experience,
+              education and skills into your ConnectPilot profile. It shows you what it will save and saves
+              only when you confirm.
             </p>
             <p>
               If you click Insert, the extension types the draft into the LinkedIn message box you have open.

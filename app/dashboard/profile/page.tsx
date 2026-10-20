@@ -8,8 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ResumeImport } from "@/components/resume-import";
 import { draftErrorMessage } from "@/lib/drafts";
-import { PROFILE_LIMITS, profileService, type ProfileFields } from "@/lib/profile";
+import { cn } from "@/lib/utils";
+import {
+  PROFILE_LIMITS,
+  mergeParsedProfile,
+  profileService,
+  type ParsedProfile,
+  type ProfileFields,
+} from "@/lib/profile";
 
 const FIELDS: {
   key: keyof ProfileFields;
@@ -67,6 +75,13 @@ function ProfileForm({ initial, completeness }: { initial: ProfileFields; comple
   const queryClient = useQueryClient();
   const [form, setForm] = useState<ProfileFields>(initial);
   const [saved, setSaved] = useState(false);
+  const [imported, setImported] = useState<{ fields: (keyof ParsedProfile)[]; skipped: boolean } | null>(null);
+
+  function applyParsed(parsed: ParsedProfile, replace: boolean) {
+    const result = mergeParsedProfile(form, parsed, replace);
+    setForm(result.form);
+    setImported({ fields: result.changed, skipped: result.kept.length > 0 });
+  }
 
   const save = useMutation({
     mutationFn: profileService.save,
@@ -86,7 +101,21 @@ function ProfileForm({ initial, completeness }: { initial: ProfileFields; comple
           <div className="h-full bg-primary transition-all" style={{ width: `${completeness}%` }} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-5">
+        <ResumeImport
+          onParsed={applyParsed}
+          hasExisting={FIELDS.some(({ key }) => key !== "writing_sample" && form[key].trim())}
+        />
+        {imported && (
+          <p className="text-sm rounded-md bg-muted px-3 py-2" role="status">
+            {imported.fields.length
+              ? `Filled ${imported.fields.length} field${imported.fields.length === 1 ? "" : "s"}: ${imported.fields
+                  .map((key) => FIELDS.find((f) => f.key === key)?.label.toLowerCase())
+                  .join(", ")}. Review, then save.`
+              : "Nothing new to fill."}
+            {imported.skipped && " Fields you already filled in were kept."}
+          </p>
+        )}
         <form
           className="space-y-5"
           onSubmit={(e) => {
@@ -106,7 +135,13 @@ function ProfileForm({ initial, completeness }: { initial: ProfileFields; comple
                 setForm({ ...form, [key]: e.target.value }),
             };
             return (
-              <div key={key} className="space-y-1">
+              <div
+                key={key}
+                className={cn(
+                  "space-y-1",
+                  imported?.fields.includes(key as keyof ParsedProfile) && "border-l-2 border-primary pl-3",
+                )}
+              >
                 <div className="flex items-baseline justify-between">
                   <Label htmlFor={key}>{label}</Label>
                   <span className="text-xs text-muted-foreground">
