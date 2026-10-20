@@ -87,6 +87,7 @@ function ProfileForm({ initial, completeness }: { initial: ProfileFields; comple
     mutationFn: profileService.save,
     onSuccess: (profile) => {
       queryClient.setQueryData(["profile"], profile);
+      queryClient.invalidateQueries({ queryKey: ["onboarding"] });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     },

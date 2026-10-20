@@ -18,18 +18,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { MessageSquarePlus, Users, UserCheck, RefreshCw, Clock, LogOut, UserRound } from "lucide-react";
+import { MessageSquarePlus, Clock, LogOut, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
-    label: "Generators",
-    items: [
-      { title: "Connection Request", href: "/dashboard", icon: Users },
-      { title: "Referral Request", href: "/dashboard/referral", icon: UserCheck },
-      { title: "Recruiter Reply", href: "/dashboard/recruiter", icon: MessageSquarePlus },
-      { title: "Follow-Up", href: "/dashboard/followup", icon: RefreshCw },
-    ],
+    label: "Write",
+    items: [{ title: "New message", href: "/dashboard", icon: MessageSquarePlus }],
   },
   {
     label: "You",

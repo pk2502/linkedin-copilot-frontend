@@ -25,8 +25,9 @@ npm run dev   # http://localhost:3000; put any variables below in .env.local
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | Deployed builds | Backend base URL, no trailing slash. Defaults to `http://localhost:8001`. |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | For Google sign-in | Google OAuth web client ID. Without it the Google button is not usable. |
+| `NEXT_PUBLIC_EXTENSION_URL` | Optional | Where the dashboard checklist sends users for the extension (set to the Chrome Web Store listing once published). Defaults to the extension's GitHub install instructions. |
 
-Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put secrets in them. On Vercel they are Config variables set for Production and Preview.
+All are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put secrets in them. On Vercel they are Config variables set for Production and Preview.
 
 ## Scripts
 
@@ -41,8 +42,9 @@ Both are public (`NEXT_PUBLIC_`) and end up in the browser bundle; never put sec
 ## How it works
 
 - **Auth.** Username/password or Google sign-in returns a JWT pair. Tokens live in `localStorage`; a presence-only `ac_session` cookie (never a token) lets `proxy.ts` redirect signed-out visitors away from `/dashboard` and signed-in visitors away from `/login` and `/register`. Access tokens are refreshed transparently with one shared in-flight refresh (`lib/tokens.ts`), because the backend rotates and blacklists refresh tokens. Logout revokes the refresh token on the backend.
-- **Profile.** `/dashboard/profile` stores the user's headline, summary, skills, target roles, experience highlights and a writing sample (`GET`/`PUT /api/profile/`). Every draft uses it; the generators show a nudge while it is under 50% complete.
-- **Drafts.** The four generator pages call `POST /api/drafts/`, which returns three variants (different angles) in one request. Each variant can be tweaked (shorter, warmer, more specific, more formal) via `POST /api/drafts/<id>/tweak/`. Validation errors (400), the daily limit (429) and AI provider failures (502) get specific messages (`lib/drafts.ts`). The older streaming client (`lib/generation.ts`, `lib/sse.ts`) is no longer used by the pages and will be removed once no client needs the original endpoints.
+- **Profile.** `/dashboard/profile` stores the user's headline, summary, skills, target roles, experience highlights and a writing sample (`GET`/`PUT /api/profile/`). Every draft uses it; the dashboard checklist asks for it while it is under 50% complete. It can be filled from a resume (PDF or text, `POST /api/profile/parse/`).
+- **Composer.** `/dashboard` is one form for all four message types (`?type=connection_request|referral_request|recruiter_reply|followup`, fields in `lib/composer.ts`); the old `/dashboard/referral`, `/recruiter` and `/followup` URLs redirect to it (`next.config.ts`). Recruiter replies and follow-ups accept a pasted conversation, after which only the name is required. A first-run checklist (profile, extension, first draft; `GET /api/onboarding/`) shows until all three are done.
+- **Drafts.** The composer calls `POST /api/drafts/`, which returns three variants (different angles) in one request. Each variant can be tweaked (shorter, warmer, more specific, more formal) via `POST /api/drafts/<id>/tweak/`. Validation errors (400), the daily limit (429) and AI provider failures (502) get specific messages (`lib/drafts.ts`). The older streaming client (`lib/generation.ts`, `lib/sse.ts`) is no longer used by the pages and will be removed once no client needs the original endpoints.
 - **Extension sign-in.** `/connect-extension` detects the ConnectPilot extension, asks the backend for a separate token pair (`POST /api/auth/extension-token/`) and hands it to the extension via same-origin `postMessage`. The web session is never shared. Signed-out users go through `/login?next=/connect-extension`; `next` only accepts same-site paths.
 
 ## Privacy policy
