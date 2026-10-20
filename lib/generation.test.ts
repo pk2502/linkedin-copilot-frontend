@@ -18,7 +18,7 @@ beforeEach(() => {
   env = installBrowserStubs();
   redirects = [];
   Object.defineProperty(env.location, "href", {
-    get: () => "https://li-copilot.vercel.app/dashboard",
+    get: () => "https://connect-pilot.vercel.app/dashboard",
     set: (value: string) => redirects.push(value),
   });
   fetchMock = vi.fn();

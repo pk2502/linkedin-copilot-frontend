@@ -7,7 +7,7 @@ import {
   detectExtension,
 } from "@/lib/extension-connect";
 
-const ORIGIN = "https://li-copilot.vercel.app";
+const ORIGIN = "https://connect-pilot.vercel.app";
 
 type Listener = (event: MessageEvent) => void;
 

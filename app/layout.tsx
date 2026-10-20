@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ConnectPilot — AI LinkedIn Message Drafts",
     description: "Write better LinkedIn messages in seconds with AI.",
-    url: "https://li-copilot.vercel.app",
+    url: "https://connect-pilot.vercel.app",
     siteName: "ConnectPilot",
     type: "website",
   },

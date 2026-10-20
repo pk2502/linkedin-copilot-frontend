@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT_EMAIL = "paritoshkhubchandani2@gmail.com";
-const LAST_UPDATED = "17 October 2026";
+const LAST_UPDATED = "20 October 2026";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           <p className="text-sm leading-relaxed text-muted-foreground">
             ConnectPilot drafts LinkedIn messages with AI. You review every draft and send it yourself;
             ConnectPilot never posts, sends or clicks anything on LinkedIn for you. This policy covers the
-            web app at li-copilot.vercel.app and the ConnectPilot Chrome extension.
+            web app at connect-pilot.vercel.app and the ConnectPilot Chrome extension.
           </p>
 
           <Section title="What we collect">

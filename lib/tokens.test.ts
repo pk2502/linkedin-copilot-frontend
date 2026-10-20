@@ -145,7 +145,7 @@ describe("handleSessionExpired", () => {
     setTokens("a", "r");
     const hrefs: string[] = [];
     Object.defineProperty(env.location, "href", {
-      get: () => "https://li-copilot.vercel.app/dashboard",
+      get: () => "https://connect-pilot.vercel.app/dashboard",
       set: (value: string) => hrefs.push(value),
     });
 

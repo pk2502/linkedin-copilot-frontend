@@ -28,7 +28,7 @@ export function installBrowserStubs() {
     },
   };
 
-  const location = { protocol: "https:", href: "https://li-copilot.vercel.app/dashboard" };
+  const location = { protocol: "https:", href: "https://connect-pilot.vercel.app/dashboard" };
 
   vi.stubGlobal("window", { location });
   vi.stubGlobal("localStorage", localStorageStub);

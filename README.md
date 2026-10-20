@@ -2,7 +2,7 @@
 
 # ConnectPilot Web App
 
-Next.js frontend for ConnectPilot: draft LinkedIn connection requests, referral asks, recruiter replies and follow-ups with AI, review them, and send them yourself. Live at [li-copilot.vercel.app](https://li-copilot.vercel.app).
+Next.js frontend for ConnectPilot: draft LinkedIn connection requests, referral asks, recruiter replies and follow-ups with AI, review them, and send them yourself. Live at [connect-pilot.vercel.app](https://connect-pilot.vercel.app).
 
 Related repositories: [backend](https://github.com/pk2502/linkedin-copilot-backend) (Django REST API on Render) and [Chrome extension](https://github.com/pk2502/linkedin-copilot-extension).
 
